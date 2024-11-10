@@ -26,7 +26,8 @@ class Board:
             stone = self.board[old_x][old_y].fill
             self.board[old_x][old_y].remove()
             self.board[new_x][new_y].put_stone(stone)
-            return self.board
+            return True
+        return False
 
     def display_board(self):
         print("    " + " ".join(f"{i:2}" for i in range(len(self.board))))
@@ -105,4 +106,16 @@ class Board:
                     self.move_stone(x, new_y, x + 1, new_y)
         
         return True
+
+    def __eq__(self, other):
+        if not isinstance(other, Board):
+            return False
+        for i in range(self.n):
+            for j in range(self.n):
+                if self.board[i][j] != other.board[i][j]:
+                    return False
+        return True
+
+    def __hash__(self):
+        return hash(tuple(tuple(cell.toString() for cell in row) for row in self.board))
 

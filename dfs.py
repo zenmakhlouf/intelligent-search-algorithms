@@ -1,41 +1,50 @@
+from collections import deque
 from copy import deepcopy
+from stone import Stone
 
 
-class Dfs:
-    def __init__(self,board):
-        visited = []
-        path = []
-        self.board = board
+class DFSSolver:
+    def __init__(self):
+        self.visited = set()
+        self.path = []
     
-    def get_possible_purple_moves(self):
-        possible_moves_coords = []
-        for (i,j) in self.board.purple_pos:
-            for(i,j) in self.board:
-                if self.board[i][j].is_empty:
-                    possible_moves_coords.append((i,j))
-    def dfs(self,board):
-        current_state = self.board
-        if current_state in self.visited:
-            return False
-        if current_state.check_game_over():
-            return True
-        self.visited.add(current_state)
-
-        purple_stones = self.board.purple_pos
-        for stone_pos in purple_stones:
-            x,y = stone_pos
-            for new_x in range(self.board.n):
-                for new_y in range(self.board.n):
-                    board_copy = deepcopy(current_state)
-                    if stone_pos in purple_stones:
-                        move = self.board.move_purple(x,y,new_x,new_y)
-                    if move and self.dfs(board_copy):
-                        self.path.append((stone_pos, (new_x, new_y)))
-                        return True
-                    
-        return False
-
-
-
+    def dfs(self, board, max_depth):
+        stack = [(deepcopy(board), [], 0)]
         
-
+        while stack:
+            current_board, current_path, current_depth = stack.pop()
+            
+            if current_depth > max_depth:
+                self.visited.clear()
+                continue
+            if current_board in self.visited:
+                continue
+                
+            if current_board.check_game_over():
+                self.path = current_path
+                return True
+                
+            self.visited.add(deepcopy(current_board))
+            
+            stones = [(x, y, current_board.board[x][y].fill.type) 
+                     for x in range(current_board.n) 
+                     for y in range(current_board.n)
+                     if isinstance(current_board.board[x][y].fill, Stone) 
+                     and current_board.board[x][y].fill.type in ["purple", "red"]]
+            
+            for x, y, stone_type in stones:
+                for new_x in range(current_board.n):
+                    for new_y in range(current_board.n):
+                        if (x, y) != (new_x, new_y) and current_board.can_move(new_x, new_y):
+                            board_copy = deepcopy(current_board)
+                            move_successful = False
+                            if stone_type == "purple":
+                                move_successful = board_copy.move_purple(x, y, new_x, new_y)
+                            elif stone_type == "red":
+                                move_successful = board_copy.move_red(x, y, new_x, new_y)
+                                
+                            if move_successful:
+                                new_path = current_path + [((x, y), (new_x, new_y))]
+                                stack.append((board_copy, new_path, current_depth + 1))
+                
+        return False

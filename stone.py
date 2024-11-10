@@ -1,12 +1,14 @@
 class Stone:
-    def __init__(self,type):
+    def __init__(self, type):
         self.type = type
 
     def __str__(self):
-        if self.type == "red":
-            return "R"
-        elif self.type == "purple":
-            return "P"
-        elif self.type == "metal":
-            return "M"
-        return "??"
+        return {"red": "R", "purple": "P", "metal": "M"}.get(self.type, "??")
+
+    def __eq__(self, other):
+        if not isinstance(other, Stone):
+            return False
+        return self.type == other.type
+
+    def __hash__(self):
+        return hash(self.type)
