@@ -4,6 +4,7 @@ import os
 from dfs import DFSSolver
 from copy import deepcopy
 from bfs import BFSSolver
+from ucs import UCSSolver
 
 
 
@@ -22,6 +23,7 @@ def print_instructions():
     print("Q - Quit game")
     print("S - Solve the puzzle using DFS")
     print("B - Solve the puzzle using BFS")
+    print("U - Solve the puzzle using UCS")
     #print("\nSelected stone will be marked with '*'")
 
 def select_level():
@@ -68,11 +70,13 @@ def main():
         selected_x, selected_y = None, None
         dfs_solver = DFSSolver()
         bfs_solver = BFSSolver()
+        ucs_solver = UCSSolver()
         solution_path = []  # Store the solution path
         no_solution_found = False  # Flag to track if no solution was found
+        solution_cost = None
 
         while True:
-            clear_screen()
+            #clear_screen()
             
             # Display current state
             if selected_x is not None:
@@ -84,6 +88,8 @@ def main():
             # Print solution if found
             if solution_path:
                 print("\nSolution found! Path:")
+                if solution_cost:
+                    print(f"\n Cost = {solution_cost}")
                 for move in solution_path:  # Print in the correct order
                     print(f"Move stone from {move[0]} to {move[1]}")
                 no_solution_found = False  # Reset the flag if a solution is found
@@ -117,6 +123,19 @@ def main():
                         no_solution_found = True  # Set the flag if no solution is found
                 except ValueError:
                     print("\nInvalid input. Please enter a number.")
+            elif key == 'u':
+                try:
+                    max_cost = input_with_quit("Enter the maximum cost: ")
+                    if ucs_solver.ucs(deepcopy(game),int(max_cost)):
+                       solution_path = ucs_solver.path
+                       solution_cost = ucs_solver.solution_cost 
+                       print("\nUCS Solution found! Cost:", solution_cost)
+                       no_solution_found = False
+                       
+                    else:
+                       no_solution_found = True 
+                except ValueError:
+                    print("\n Invalid input enter a number")
             
             # Handle cursor movement
             if key == '\x1b[A' and cursor_x > 0:  # Up arrow

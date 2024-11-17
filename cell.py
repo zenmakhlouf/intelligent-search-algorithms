@@ -28,5 +28,3 @@ class Cell:
     def __hash__(self):
         return hash((self.type, self.fill))
 
-# type [blank, goal, unreachable ]
-# fill[Stone,Empty]

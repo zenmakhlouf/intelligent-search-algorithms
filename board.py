@@ -83,7 +83,6 @@ class Board:
         
         for y in range(new_y + 1, self.n):
             if not self.board[new_x][y].is_empty():
-                # Found a stone, try to pull it if there's space
                 if self.can_move(new_x, y - 1):
                     self.move_stone(new_x, y, new_x, y - 1)
         
@@ -106,6 +105,52 @@ class Board:
                     self.move_stone(x, new_y, x + 1, new_y)
         
         return True
+    
+    def calc_move_cost(self,old_x,old_y,new_x,new_y,stone_type):
+        base_cost = 1
+        additional_cost = 0
+        if stone_type == 'purple':
+
+            for y in range(self.n - 1, new_y, -1):
+                if not self.board[new_x][y].is_empty() and self.can_move(new_x, y + 1):
+                    additional_cost += 1
+        
+            for y in range(0, new_y):
+                if not self.board[new_x][y].is_empty() and self.can_move(new_x, y - 1):
+                    additional_cost += 1
+
+            
+            for x in range(self.n - 1, new_x, -1):
+                if not self.board[x][new_y].is_empty() and self.can_move(x + 1, new_y):
+                    additional_cost += 1
+
+            
+            for x in range(0, new_x):
+                if not self.board[x][new_y].is_empty() and self.can_move(x - 1, new_y):
+                    additional_cost += 1
+            
+        if stone_type == 'red':
+            for y in range(new_y + 1, self.n):
+                if not self.board[new_x][y].is_empty():
+                    if self.can_move(new_x, y - 1):
+                        additional_cost += 1        
+        
+            for y in range(new_y - 1, -1, -1):
+                if not self.board[new_x][y].is_empty():
+                    if self.can_move(new_x, y + 1):
+                        additional_cost += 1            
+            
+            for x in range(new_x + 1, self.n):
+                if not self.board[x][new_y].is_empty():
+                    if self.can_move(x - 1, new_y):
+                         additional_cost += 1
+            
+            
+            for x in range(new_x - 1, -1, -1):
+                if not self.board[x][new_y].is_empty():
+                    if self.can_move(x + 1, new_y):
+                        additional_cost += 1
+        return base_cost #+ additional_cost
 
     def __eq__(self, other):
         if not isinstance(other, Board):
